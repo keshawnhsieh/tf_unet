@@ -1,1 +1,5 @@
 .idea/*
+*.tfrecords
+*.pyc
+unet_model/*
+result/*
