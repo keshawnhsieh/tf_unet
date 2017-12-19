@@ -132,8 +132,8 @@ def main(unused_argv):
     os.makedirs(FLAGS.save_dir)
   for i, p in enumerate(predictions):
     im = p['classes']
-    name = os.path.join(FLAGS.save_dir, 'p%d_n%d_lb.jpg' % (_HEIGHT, i))
-    cv2.imwrite(name, im * 255)
+    name = os.path.join(FLAGS.save_dir, 'pd_n%4d_lb.jpg' % (i))
+    cv2.imwrite(name, im)
     print('Saved prediction %s', name)
 
 
