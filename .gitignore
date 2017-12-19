@@ -3,3 +3,4 @@
 *.pyc
 unet_model/*
 result/*
+data/*
