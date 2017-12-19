@@ -12,3 +12,6 @@ python gen_samples.py   \
     --num_test=500      \
     --rs_file=../sample_library/luhe_test.tif   \
     --lb_file=../sample_library/luhe_buildings_classes_test.tif
+
+python convert_to_tfrecords.py  \
+    --sample_dir=./data
