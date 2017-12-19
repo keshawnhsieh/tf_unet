@@ -4,3 +4,4 @@
 unet_model/*
 result/*
 data/*
+clear.sh
