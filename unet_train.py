@@ -19,15 +19,14 @@ parser.add_argument('--epochs_per_eval', type=int, default=10)
 
 parser.add_argument('--batch_size', type=int, default=10)
 
+parser.add_argument('--num_train', type=int, default=1000)
+
+parser.add_argument('--num_valid', type=int, default=200)
+
 _HEIGHT = 512
 _WIDTH = 512
 _CHANNELS = 3
 _NUM_CLASSES = 2
-
-_NUM_IMAGES = {
-  'train': 1000,
-  'validation': 200,
-}
 
 _MEAN = None
 
@@ -58,7 +57,7 @@ def input_fn(is_training, filename, batch_size=4, num_epochs=1):
 
   # Apply dataset transformations
   if is_training:
-    dataset = dataset.shuffle(buffer_size=_NUM_IMAGES['train'])
+    dataset = dataset.shuffle(buffer_size=FLAGS.num_train)
 
   dataset = dataset.map(example_parser)
   dataset = dataset.map(
@@ -74,13 +73,19 @@ def input_fn(is_training, filename, batch_size=4, num_epochs=1):
 
 def unet_model_fn(features, labels, mode):
   input = tf.reshape(features, [-1, _HEIGHT, _WIDTH, _CHANNELS])
-  labels = tf.reshape(labels, [-1, _HEIGHT, _WIDTH, _NUM_CLASSES])
   logits = unet_model(input, mode == tf.estimator.ModeKeys.TRAIN)
 
   predictions = {
     'classes': tf.argmax(input=logits, axis=3),
     'probabilities': tf.nn.softmax(logits, name='softmax_tensor')
   }
+
+  if mode == tf.estimator.ModeKeys.PREDICT:
+    return tf.estimator.EstimatorSpec(mode=mode, predictions=predictions)
+
+  # Process label reshaping after defining PREDICT mode estimator
+  # to avoid error when predicting
+  labels = tf.reshape(labels, [-1, _HEIGHT, _WIDTH, _NUM_CLASSES])
 
   # Show predicted mask image && ground truth mask image
   pd_label = tf.expand_dims(predictions['classes'], axis=-1) * 255
@@ -91,9 +96,6 @@ def unet_model_fn(features, labels, mode):
   tf.summary.image('gt_label',
                    tf.cast(gt_label, tf.uint8),
                    max_outputs=4)
-
-  if mode == tf.estimator.ModeKeys.PREDICT:
-    return tf.estimator.EstimatorSpec(mode=mode, predictions=predictions)
 
   loss = tf.losses.softmax_cross_entropy(onehot_labels=labels, logits=logits)
 
