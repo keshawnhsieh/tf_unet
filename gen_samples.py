@@ -51,7 +51,7 @@ def cut_patches(image, label, mode, num, augmentation=False, directory='.'):
   _w = image.shape[1]
 
   _c = 0
-  _thr = 0.001
+  _thr = 0.005
   while _c < num:
     xs = random.randint(0, _h - _SIZE)
     ys = random.randint(0, _w - _SIZE)
@@ -62,7 +62,7 @@ def cut_patches(image, label, mode, num, augmentation=False, directory='.'):
     fim = os.path.join(directory, '%s_n%04d_im' % (name_mapping[mode],  _c) + '.jpg')
     flb = os.path.join(directory, '%s_n%04d_lb' % (name_mapping[mode],  _c) + '.jpg')
     cv2.imwrite(fim, im)
-    cv2.imwrite(flb, lb * 255)
+    cv2.imwrite(flb, lb)
     _c += 1
 
 def main():
