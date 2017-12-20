@@ -18,6 +18,10 @@ parser.add_argument('--save_dir', type=str, default='./result')
 
 parser.add_argument('--batch_size', type=int, default=10)
 
+parser.add_argument('--gpu', type=str, default=None)
+
+def set_gpus(kernel):
+  os.environ['CUDA_VISIBLE_DEVICES'] = kernel
 
 _HEIGHT = 512
 _WIDTH = 512
@@ -110,6 +114,9 @@ def unet_model_fn(features, labels, mode):
   )
 
 def main(unused_argv):
+  os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
+  if FLAGS.gpu is not None:
+    set_gpus(FLAGS.gpu)
   test_file = os.path.join(FLAGS.data_dir, 'test.tfrecords')
 
   # Manage GPU usages
@@ -132,9 +139,9 @@ def main(unused_argv):
     os.makedirs(FLAGS.save_dir)
   for i, p in enumerate(predictions):
     im = p['classes']
-    name = os.path.join(FLAGS.save_dir, 'pd_n%4d_lb.jpg' % (i))
+    name = os.path.join(FLAGS.save_dir, 'pd_n%04d_lb.jpg' % (i))
     cv2.imwrite(name, im)
-    print('Saved prediction %s', name)
+    print('Saved prediction %s' % name)
 
 
 if __name__ == '__main__':
