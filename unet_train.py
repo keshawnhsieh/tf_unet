@@ -29,6 +29,7 @@ _HEIGHT = 512
 _WIDTH = 512
 _CHANNELS = 3
 _NUM_CLASSES = 2
+_WEIGHTS = [1.0, 2.0]
 
 _MEAN = None
 
@@ -102,7 +103,19 @@ def unet_model_fn(features, labels, mode):
                    tf.cast(gt_label, tf.uint8),
                    max_outputs=4)
 
-  loss = tf.losses.softmax_cross_entropy(onehot_labels=labels, logits=logits)
+  # loss = tf.losses.softmax_cross_entropy(onehot_labels=labels, logits=logits)
+  flat_logits = tf.reshape(logits, [-1, _NUM_CLASSES])
+  flat_labels = tf.reshape(labels, [-1, _NUM_CLASSES])
+
+  class_weights = tf.constant(np.array(_WEIGHTS, dtype=np.float32))
+  weight_map = tf.multiply(flat_labels, class_weights)
+  weight_map = tf.reduce_sum(weight_map, axis=1)
+
+  loss_map = tf.nn.softmax_cross_entropy_with_logits(logits=flat_logits,
+                                                     labels=flat_labels)
+  weighted_loss = tf.multiply(loss_map, weight_map)
+
+  loss = tf.reduce_mean(weighted_loss)
 
   # Configure the training op
   # TODO: use learning rate schedule
