@@ -23,12 +23,17 @@ parser.add_argument('--num_train', type=int, default=1000)
 
 parser.add_argument('--num_valid', type=int, default=200)
 
+parser.add_argument('--gpu', type=str, default=None)
+
 _HEIGHT = 512
 _WIDTH = 512
 _CHANNELS = 3
 _NUM_CLASSES = 2
 
 _MEAN = None
+
+def set_gpus(kernel):
+  os.environ['CUDA_VISIBLE_DEVICES'] = kernel
 
 def preprocess_image(image, is_training):
   image = tf.reshape(image, shape=[_HEIGHT, _WIDTH, _CHANNELS])
@@ -125,6 +130,9 @@ def unet_model_fn(features, labels, mode):
   )
 
 def main(unused_argv):
+  os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
+  if FLAGS.gpu is not None:
+    set_gpus(FLAGS.gpu)
   train_file = os.path.join(FLAGS.data_dir, 'train.tfrecords')
   valid_file = os.path.join(FLAGS.data_dir, 'valid.tfrecords')
 
