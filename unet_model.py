@@ -14,6 +14,7 @@ def unet_model(input, is_training=True):
       input = tf.layers.conv2d(inputs=input,
                               filters=c,
                               kernel_size=(3, 3),
+                              kernel_initializer=tf.variance_scaling_initializer(),
                               padding='SAME',
                               activation=None)
       input = tf.layers.batch_normalization(inputs=input,
@@ -35,13 +36,15 @@ def unet_model(input, is_training=True):
     input = tf.layers.conv2d(inputs=input,
                              filters=c,
                              kernel_size=(3, 3),
+                             kernel_initializer=tf.variance_scaling_initializer(),
                              padding='SAME',
                              activation=None)
     input = tf.concat([input, convs.next()], axis=3)
     for _ in range(_DEPTH):
       input = tf.layers.conv2d(inputs=input,
                                filters=c,
-                               kernel_size=3,
+                               kernel_size=(3, 3),
+                               kernel_initializer=tf.variance_scaling_initializer(),
                                padding='SAME',
                                activation=None)
       input = tf.layers.batch_normalization(inputs=input,
@@ -54,6 +57,7 @@ def unet_model(input, is_training=True):
   logits = tf.layers.conv2d(inputs=input,
                             filters=2,
                             kernel_size=(3, 3),
+                            kernel_initializer=tf.variance_scaling_initializer(),
                             padding='SAME',
                             activation=tf.nn.relu)
 
