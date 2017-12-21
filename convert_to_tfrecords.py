@@ -39,6 +39,7 @@ def convert_to(name, num, sample_dir, save_dir='.'):
     flb = os.path.join(sample_dir, '%s_n%04d_lb' % (_PREFIX[name],  _c) + '.jpg')
     im = cv2.imread(fim)
     lb = cv2.imread(flb, 0)
+    ret, lb = cv2.threshold(lb, 127, 1, cv2.THRESH_BINARY)
     im_raw = im.tostring()
     lb_raw = lb.tostring()
     example = tf.train.Example(features=tf.train.Features(
@@ -59,7 +60,7 @@ def main():
   print('Num of samples:')
   print(num_samples)
   for k, v in num_samples.items():
-    if not v ==0:
+    if not v == 0:
       convert_to(k, v, FLAGS.sample_dir)
 
 
