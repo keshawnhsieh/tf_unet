@@ -62,7 +62,7 @@ def cut_patches(image, label, mode, num, augmentation=False, directory='.'):
     fim = os.path.join(directory, '%s_n%04d_im' % (name_mapping[mode],  _c) + '.jpg')
     flb = os.path.join(directory, '%s_n%04d_lb' % (name_mapping[mode],  _c) + '.jpg')
     cv2.imwrite(fim, im)
-    cv2.imwrite(flb, lb)
+    cv2.imwrite(flb, lb * 255)
     _c += 1
 
 def main():
