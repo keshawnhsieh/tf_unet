@@ -6,6 +6,13 @@ import sys
 import argparse
 import os
 
+# Pre-defined arguments
+_HEIGHT = 512
+_WIDTH = 512
+_CHANNELS = 3
+_NUM_CLASSES = 2
+_WEIGHTS = [1.0, 2.0]
+
 parser = argparse.ArgumentParser()
 
 # Basic model parameters
@@ -21,17 +28,10 @@ parser.add_argument('--batch_size', type=int, default=48)
 
 parser.add_argument('--num_train', type=int, default=5000)
 
-parser.add_argument('--num_valid', type=int, default=200)
+parser.add_argument('--weights', type=float, default=_WEIGHTS[1])
 
 parser.add_argument('--gpu', type=str, default=None)
 
-_HEIGHT = 512
-_WIDTH = 512
-_CHANNELS = 3
-_NUM_CLASSES = 2
-_WEIGHTS = [1.0, 2.0]
-
-_MEAN = None
 
 def set_gpus(kernel):
   os.environ['CUDA_VISIBLE_DEVICES'] = kernel
