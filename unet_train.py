@@ -17,9 +17,9 @@ parser.add_argument('--train_epochs', type=int, default=250)
 
 parser.add_argument('--epochs_per_eval', type=int, default=10)
 
-parser.add_argument('--batch_size', type=int, default=10)
+parser.add_argument('--batch_size', type=int, default=48)
 
-parser.add_argument('--num_train', type=int, default=1000)
+parser.add_argument('--num_train', type=int, default=5000)
 
 parser.add_argument('--num_valid', type=int, default=200)
 
