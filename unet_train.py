@@ -15,7 +15,7 @@ parser.add_argument('--model_dir', type=str, default='./unet_model')
 
 parser.add_argument('--train_epochs', type=int, default=250)
 
-parser.add_argument('--epochs_per_eval', type=int, default=10)
+parser.add_argument('--epochs_per_eval', type=int, default=1)
 
 parser.add_argument('--batch_size', type=int, default=48)
 
