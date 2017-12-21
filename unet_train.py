@@ -5,13 +5,13 @@ import numpy as np
 import sys
 import argparse
 import os
+from time import gmtime, strftime
 
 # Pre-defined arguments
 _HEIGHT = 512
 _WIDTH = 512
 _CHANNELS = 3
 _NUM_CLASSES = 2
-_WEIGHTS = [1.0, 2.0]
 
 parser = argparse.ArgumentParser()
 
@@ -28,7 +28,9 @@ parser.add_argument('--batch_size', type=int, default=48)
 
 parser.add_argument('--num_train', type=int, default=5000)
 
-parser.add_argument('--weights', type=float, default=_WEIGHTS[1])
+parser.add_argument('--weights', nargs='+', type=float, default=[1.0, 1.0])
+
+parser.add_argument('--random_seed', type=int, default=1234)
 
 parser.add_argument('--gpu', type=str, default=None)
 
@@ -107,7 +109,7 @@ def unet_model_fn(features, labels, mode):
   flat_logits = tf.reshape(logits, [-1, _NUM_CLASSES])
   flat_labels = tf.reshape(labels, [-1, _NUM_CLASSES])
 
-  class_weights = tf.constant(np.array(_WEIGHTS, dtype=np.float32))
+  class_weights = tf.constant(np.array(FLAGS.weights, dtype=np.float32))
   weight_map = tf.multiply(flat_labels, class_weights)
   weight_map = tf.reduce_sum(weight_map, axis=1)
 
@@ -142,6 +144,19 @@ def unet_model_fn(features, labels, mode):
     eval_metric_ops=metrics
   )
 
+def set_configs():
+  # Manage gpu usage
+  sess_conf = tf.ConfigProto()
+  sess_conf.gpu_options.allow_growth = True
+  config = tf.estimator.RunConfig(
+    tf_random_seed=FLAGS.random_seed,
+    save_summary_steps=20,
+    save_checkpoints_steps=50,
+    session_config=sess_conf,
+    keep_checkpoint_max=0
+  )
+  return config
+
 def main(unused_argv):
   os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
   if FLAGS.gpu is not None:
@@ -149,14 +164,13 @@ def main(unused_argv):
   train_file = os.path.join(FLAGS.data_dir, 'train.tfrecords')
   valid_file = os.path.join(FLAGS.data_dir, 'valid.tfrecords')
 
-  # Manage GPU usages
-  config_proto = tf.ConfigProto()
-  config_proto.gpu_options.allow_growth = True
-  config = tf.estimator.RunConfig(session_config=config_proto)
+  # Set basic configuration
+  config = set_configs()
 
   # Create the Estimator
+  model_dir = os.path.join(FLAGS.model_dir, strftime('%Y-%m-%dT%H:%M:%S', gmtime()))
   unet_classifier = tf.estimator.Estimator(
-    model_fn=unet_model_fn, model_dir=FLAGS.model_dir, config=config
+    model_fn=unet_model_fn, model_dir=model_dir, config=config
   )
 
   # Set up training hook that log the training accuracy every 100 steps
