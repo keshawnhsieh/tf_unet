@@ -138,9 +138,9 @@ def main(unused_argv):
   if not os.path.exists(FLAGS.save_dir):
     os.makedirs(FLAGS.save_dir)
   for i, p in enumerate(predictions):
-    im = p['classes']
+    im = p['probabilities'][:,:,1] * 255
     name = os.path.join(FLAGS.save_dir, 'pd_n%04d_lb.jpg' % (i))
-    cv2.imwrite(name, im)
+    cv2.imwrite(name, im.astype(np.uint8))
     print('Saved prediction %s' % name)
 
 
